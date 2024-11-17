@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico Interativo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Gráfico Interativo</h1>
+        
+        <!-- Opções para alterar o gráfico -->
+        <div class="controls">
+            <label for="chartType">Escolha o tipo de gráfico: </label>
+            <select id="chartType">
+                <option value="line">Linha</option>
+                <option value="bar">Barras</option>
+            </select>
+            
+            <label for="yearSelect">Escolha o ano para adicionar: </label>
+            <select id="yearSelect">
+                <option value="1998">1998</option>
+                <option value="1999">1999</option>
+                <option value="2000">2000</option>
+                <option value="2001">2001</option>
+                <option value="2002">2002</option>
+                <!-- Mais anos podem ser adicionados -->
+            </select>
+            
+            <button id="addYearBtn">Adicionar Ano ao Gráfico</button>
+        </div>
+        
+        <!-- Canvas para o gráfico -->
+        <canvas id="interactiveChart"></canvas>
+    </div>
+
+    <script>
+        // Dados iniciais
+        const monthlyData = {
+            1998: [0, 0, 0, 0, 0, 451, 597, 580, 525, 433, 487, 121],
+            1999: [7, 47, 78, 291, 500, 522, 683, 1210, 910, 763, 400, 47],
+            2000: [36, 25, 27, 102, 300, 605, 770, 915, 581, 647, 96, 23],
+            2001: [26, 25, 35, 61, 211, 345, 539, 587, 423, 441, 168, 52],
+            2002: [19, 19, 111, 178, 319, 562, 645, 909, 483, 699, 129, 77],
+        };
+        
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        
+        // Inicializa o gráfico
+        let chartType = 'line'; // Tipo de gráfico padrão
+        let chartData = {
+            labels: months,
+            datasets: [{
+                label: '1998',
+                data: monthlyData[1998],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                fill: false,
+                tension: 0.1
+            }]
+        };
+
+        const ctx = document.getElementById('interactiveChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: chartType,
+            data: chartData,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Mês'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Queimadas (Número)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Função para atualizar o tipo de gráfico
+        document.getElementById('chartType').addEventListener('change', function(event) {
+            chartType = event.target.value;
+            chart.destroy(); // Remove o gráfico atual
+            chart = new Chart(ctx, { // Recria o gráfico com o novo tipo
+                type: chartType,
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Mês'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Queimadas (Número)'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Função para adicionar um ano ao gráfico
+        document.getElementById('addYearBtn').addEventListener('click', function() {
+            const year = document.getElementById('yearSelect').value;
+            
+            if (!chartData.datasets.some(dataset => dataset.label === year)) {
+                chartData.datasets.push({
+                    label: year,
+                    data: monthlyData[year],
+                    borderColor: getRandomColor(),
+                    fill: false,
+                    tension: 0.1
+                });
+
+                chart.update(); // Atualiza o gráfico com o novo ano
+            }
+        });
+
+        // Função para gerar uma cor aleatória para cada ano
+        function getRandomColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+    </script>
+</body>
+</html>
